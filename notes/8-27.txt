@@ -1,0 +1,20 @@
+components of data block:
+	data <name> defines a new data set
+to get data:
+	input <var-name> will live in the data set
+	variable name will get values after cards/datalines command
+	variables are numeric by default; use <var name>$ to specify a character variable
+	use a period to indicate missing value
+cards or datalines:
+	cards remnant from punch card days--specifies beginning of input data; commands are equivalent
+	will read input values until encountes either a lone semicolon, or a run statement
+	raw data is space-delimited, can be changed with DLM = '<delim>'
+explorer libraries:
+	"Work" is default lib, in the example "One" is created; is temporary/volatile
+		functions as scratch space
+create new library:
+	libname <name of new lib> "<path to new lib>";
+	to stick stuff in the library: data <lib name>.<var name>;
+datasets may be labeled to make their contents more clear
+	Right-click data set, Properties
+in proc print, the most-recently edited data set will be used if the data set is not explicitly specified via data=<data set>;
