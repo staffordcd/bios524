@@ -5,6 +5,7 @@ FILES
 * double_at.sas
 * 8-29_ex1.sas
 * simple_list.sas
+* 8-29_ex2.sas
 
 data block is implicit do loop
 informat: changes the input format, over-riding the default numeric input - tells SAS what to expect
