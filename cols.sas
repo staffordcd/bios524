@@ -1,0 +1,12 @@
+* column-specified data;
+DATA COLINPUT;
+INPUT ID 1 HEIGHT 2-3 WEIGHT 4-6 GENDER $ 7 AGE 8-9; * numbers specify text column number;
+DATALINES;
+168144M23
+278202M34
+362 99F37
+461101F45
+;
+PROC PRINT DATA=COLINPUT;
+TITLE 'Example 5.1';
+RUN;

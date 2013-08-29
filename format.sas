@@ -1,0 +1,14 @@
+data informs;
+informat LN $20. DOB MMDDYY8. GENDER $1.;
+input ID LN DOB HEIGHT WEIGHT GENDER AGE;
+FORMAT DOB MMDDYY8.;
+datalines;
+1 SMITH 1/23/66 68 144 M 26
+2 JONES 3/14/60 78 202 M 32
+3 DOE 11/26/47 62 99 F 45
+4 WASHINGTON 8/1/70 66 101 F 22
+;
+PROC PRINT DATA=INFORMS;
+format DOB MMDDYY10.; * format here can over-ride format in data block;
+TITLE 'Example 3.1';
+RUN;
