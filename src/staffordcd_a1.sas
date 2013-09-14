@@ -5,8 +5,11 @@
     Description:
 --------------------------------------------------------*/
 
-
 data treedat;
+/*--------------------------------------------------------
+Reads tree data via datalines, cols as specified in program
+spec.
+--------------------------------------------------------*/
     input ID 1-4 SPECIES $ 6-11 INIT_CIRC 13-16 FERT_CODE $ 18 FIN_CIRC 20-23;
     datalines;
 1111 Pine   62.1 X 86.0
@@ -30,4 +33,57 @@ data treedat;
 1383 Beech  92.8 Y 99.2
 1392 Beech  63.9 Z 86.1
 ;
+run;
+
+data calc_growth_stats;
+/*--------------------------------------------------------
+calculate the initial and final diameter of each tree
+by dividing the circumference by an approximation of pi.
+
+calculate growth statistics of each tree.
+--------------------------------------------------------*/
+    set treedat;
+    * find initial and ending circ of each tree;
+    i_diam = init_circ / 3.1416;
+    e_diam = fin_circ / 3.1416;
+    
+    * calc growth stat;
+    diff_diam = e_diam - i_diam;
+run;
+
+/*--------------------------------------------------------
+find the median value, and put it in the data table.
+I blatantly stole most of this from http://www.nesug.org/proceedings/nesug07/cc/cc45.pdf
+and adapted it for my purposes. it's a little ugly (appends the median to each row, see step 2)
+but gets the job done.
+--------------------------------------------------------*/
+proc means data = calc_growth_stats median noprint;
+    var diff_diam;
+    output out = add(drop = _TYPE_ _FREQ_) median = median;
+run;
+/*--------------------------------------------------------
+step 2, also blatantly stolen / adapted from the above-referenced resource!
+--------------------------------------------------------*/
+data calc_growth_stats;
+    if _N_ = 1 then set add;
+    set calc_growth_stats;
+run;
+
+/*--------------------------------------------------------
+categorize tree growth as either high or low
+--------------------------------------------------------*/
+data stratify_growth;
+    set calc_growth_stats;
+    select;
+        when (diff_diam >= median) CAT_DIA_CHG = "high";
+        when (diff_diam < median) CAT_DIA_CHG = "low";
+    end;
+run;
+
+/*--------------------------------------------------------
+plot freq. of fertilizer * CAT_DIA_CHG
+--------------------------------------------------------*/
+proc freq data = stratify_growth;
+    title "Fertilizer Code vs. Diameter Change";
+    tables FERT_CODE * CAT_DIA_CHG;
 run;
