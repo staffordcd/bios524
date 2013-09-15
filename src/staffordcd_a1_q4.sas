@@ -1,22 +1,29 @@
 /*--------------------------------------------------------
 Christian Stafford
 Assignment #1, Question 4
-Completed: 
-Description: 
+Completed: 9/15/13
+Description: analyze income vs. ethnicity information, visualize with a frequency table and cross table.
+    Entries missing data or marked "NA" will be discarded.
+
+NOTE: unless otherwise specified, code has been heavily inspired by snippets available from the
+    SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
 --------------------------------------------------------*/
+
 /*--------------------------------------------------------
 read in the raw data.
 
 treating income as a string because the data are more categorical in nature than truly numerical.
+data has header, so start reading data at line 2
 --------------------------------------------------------*/
 data raw;
-    infile "c:\bios524\data\hw1.1.txt" firstobs = 2;
+    *infile "c:\bios524\data\hw1.1.txt" firstobs = 2; * I keep my data in a different dir, changed below to default;
+    infile "c:\bios524\hw1.1.txt" firstobs = 2;
     length income $ 11;
     input rid ethnicity $ income $;
 run;
 
 /*--------------------------------------------------------
-drop data where either income or ethnicity are N/A or missing
+omit data where either income or ethnicity are N/A or missing
 --------------------------------------------------------*/
 data full_records;
     set raw;

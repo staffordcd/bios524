@@ -1,15 +1,19 @@
 /*--------------------------------------------------------
-    Christian Stafford
-    Assignment 1
-    Completed:
-    Description:
+Christian Stafford
+Assignment 1
+Completed: 9/15/13
+Description: Analyzes tree circumference data to determine which type of
+    fertilizer contributes the most to growth.
+
+NOTE: unless otherwise specified, code has been heavily inspired by snippets available from the
+    SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
+
 --------------------------------------------------------*/
 
-data treedat;
 /*--------------------------------------------------------
-Reads tree data via datalines, cols as specified in program
-spec.
+Reads tree data as specified in program spec.
 --------------------------------------------------------*/
+data treedat;
     input ID 1-4 SPECIES $ 6-11 INIT_CIRC 13-16 FERT_CODE $ 18 FIN_CIRC 20-23;
     datalines;
 1111 Pine   62.1 X 86.0
@@ -35,13 +39,13 @@ spec.
 ;
 run;
 
-data calc_growth_stats;
 /*--------------------------------------------------------
 calculate the initial and final diameter of each tree
 by dividing the circumference by an approximation of pi.
 
-calculate growth statistics of each tree.
+calculate desired growth statistics of each tree.
 --------------------------------------------------------*/
+data calc_growth_stats;
     set treedat;
     * find initial and ending circ of each tree;
     i_diam = init_circ / 3.1416;
@@ -52,10 +56,11 @@ calculate growth statistics of each tree.
 run;
 
 /*--------------------------------------------------------
-find the median value, and put it in the data table.
+find the median value, and put it in the data table, step 1.
+
 I blatantly stole most of this from http://www.nesug.org/proceedings/nesug07/cc/cc45.pdf
 and adapted it for my purposes. it's a little ugly (appends the median to each row, see step 2)
-but gets the job done.
+but gets the job done. There may be a better way to do this, but, if so, I can't find it!
 --------------------------------------------------------*/
 proc means data = calc_growth_stats median noprint;
     var diff_diam;
