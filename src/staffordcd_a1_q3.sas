@@ -16,7 +16,13 @@ run;
 /*--------------------------------------------------------
 print out nicely-formatted output
 --------------------------------------------------------*/
-proc print data = raw;
+proc print data = raw label;
+    options nodate;
+    *var income sales date mort;
     title "Income and Expenses";
+    label income = "Income"
+        sales = "Sales"
+        mort = "Mortgage"
+        date = "Date";
     format income dollar9.2 sales dollar9.2 date date9.;
 run;
