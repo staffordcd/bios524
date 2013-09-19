@@ -7,6 +7,7 @@ run;
 
 data bios.cleaned;
     set bios.raw;
+    * declare an array, length 12, that will hold the values in weight1 thru weight12;
     array week_weights{12} weight1-weight12;
     change = 0;
     cumulative_change = 0;
