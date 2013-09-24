@@ -7,6 +7,7 @@ Description:
 
 /*--------------------------------------------------------
 read in the raw data, formatting it as necessary.
+add labels to the variables to make them more descriptive
 
 length statements used here to eliminate wonky reading/assignment I was getting
 --------------------------------------------------------*/
