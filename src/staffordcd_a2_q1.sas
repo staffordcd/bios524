@@ -34,3 +34,37 @@ data raw;
         don_age = "Donor Age";
 run;
 
+/*--------------------------------------------------------
+display some summary information about the data set (Q1, part B)
+--------------------------------------------------------*/
+proc contents data = raw;
+    title  "Contents of Raw Dataset";
+run;
+
+/*--------------------------------------------------------
+set up format to classify all 'undetermined' 'unknown' or
+'other' races as 'missing'
+--------------------------------------------------------*/
+proc format;
+    value race  1 = "White"
+                2 = "Black"
+                3 = "American Indian / Alaskan Native"
+                4 = "Asian"
+                5 = "Pacific Islander"
+                6 = "Mideast / Arabian"
+                7 = "Indian Sub-continent"
+                998 = "Missing"
+                999 = "Missing"
+                8 = "Missing"
+                . = "Missing";
+run;
+
+proc freq data = combined_race_info;
+
+run;
+
+/*--------------------------------------------------------
+Answers to Q1:
+    b. There are 4682 records in the data set, but if we're to count the recipient and donor as discrete patients, there are 9364 total patients.
+
+--------------------------------------------------------*/
