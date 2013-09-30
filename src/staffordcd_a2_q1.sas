@@ -59,12 +59,45 @@ proc format;
                 . = "Missing";
 run;
 
-proc freq data = combined_race_info;
-
+/*--------------------------------------------------------
+Create & display distribution statistics of recipient race (rec_race) - Q1c.
+--------------------------------------------------------*/
+proc freq data = raw;
+    title "Distribution by Recipient Race";
+    tables rec_race;
+    format rec_race race.;
 run;
 
 /*--------------------------------------------------------
+Create different race format to group types differently - Q1d.
+--------------------------------------------------------*/
+proc format;
+    value broad_race    1 = "White"
+                        2 = "Black"
+                        3-7 = "Asian/Pacific Islander/Arabian/Indian Subcontinent/American Indian/Alaska native"
+                        998 = "Missing"
+                        999 = "Missing"
+                        8 = "Missing"
+                        . = "Missing";
+run;
+
+/*--------------------------------------------------------
+Cross-classify recipient race and donor race using broad race definition,
+create table with only raw counts of transplants (Q1d),
+--------------------------------------------------------*/
+proc freq data = raw;
+    title "Cross-tabulation of Donor vs. Recipient Race";
+    title2 "Broad race categorization";
+    tables rec_race * don_race /nopercent norow nocol nocum;
+    format rec_race don_race broad_race.;
+run;
+
+/*--------------------------------------------------------
+
+--------------------------------------------------------*/
+
+/*--------------------------------------------------------
 Answers to Q1:
-    b. There are 4682 records in the data set, but if we're to count the recipient and donor as discrete patients, there are 9364 total patients.
+    b. Per instructions in class, only the recipients are classified as patients; thus, there are 4682 patients in the data set.
 
 --------------------------------------------------------*/
