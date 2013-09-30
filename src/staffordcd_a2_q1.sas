@@ -116,16 +116,25 @@ proc freq data = raw;
 run;
 
 /*--------------------------------------------------------
-Calculate total proportion of graft failures
---------------------------------------------------------*/
-data failed success;
-    set raw;
-    if gftfail eq "Y" then
-        output failed;
-    else if gftfail eq "N" then
-        output success;
+Clean the raw data for some calculations.
 
+NB: discards missing values, discards values other than Y or N.
+--------------------------------------------------------*/
+data cleaned;
+    set raw;
+    if gftfail ne "Y" and gftfail ne "N" then delete;
 run;
+
+/*--------------------------------------------------------
+Create table of graft failures by sex
+--------------------------------------------------------*/
+proc freq data = cleaned;
+    title "Proportion of Graft Failures";
+    title2 "by sex";
+    tables gftfail * rec_sex;
+run;
+
+
 /*--------------------------------------------------------
 Answers to Q1:
     b. Per instructions in class, only the recipients are classified as patients; thus, there are 4682 patients in the data set.
