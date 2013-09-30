@@ -93,9 +93,39 @@ proc freq data = raw;
 run;
 
 /*--------------------------------------------------------
-
+Format to categorize ages into chunks
 --------------------------------------------------------*/
+proc format;
+    value age_bracket   0-10 = "0-10 years"
+                        11-20 = "11-20 years"
+                        21-30 = "21-30 years"
+                        31-40 = "31-40 years"
+                        41-50 = "41-50 years"
+                        51-60 = "51-60 years"
+                        61-999 = "61+ years";
+run;
 
+/*--------------------------------------------------------
+Show tables of recipient age by age bracket, and of donor age by age bracket.
+--------------------------------------------------------*/
+proc freq data = raw;
+    title "Organ Recipients and Donors";
+    title2 "by age bracket";
+    tables rec_age don_age;
+    format rec_age don_age age_bracket.;
+run;
+
+/*--------------------------------------------------------
+Calculate total proportion of graft failures
+--------------------------------------------------------*/
+data failed success;
+    set raw;
+    if gftfail eq "Y" then
+        output failed;
+    else if gftfail eq "N" then
+        output success;
+
+run;
 /*--------------------------------------------------------
 Answers to Q1:
     b. Per instructions in class, only the recipients are classified as patients; thus, there are 4682 patients in the data set.
