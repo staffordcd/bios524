@@ -1,8 +1,9 @@
 /*--------------------------------------------------------
 Christian Stafford
 Assignment #2, Question 1
-Completed: 
-Description: 
+Completed: 10/2/2013
+Description: analyze various statistics about organ transplantation
+data, graft failure.
 --------------------------------------------------------*/
 
 /*--------------------------------------------------------
