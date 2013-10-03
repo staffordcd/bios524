@@ -12,7 +12,7 @@ add labels to the variables to make them more descriptive
 length statements used here to eliminate wonky reading/assignment I was getting
 --------------------------------------------------------*/
 data raw;
-    infile "c:\bios524\data\transplant.txt";
+    infile "c:\bios524\transplant.txt";
     length rec_sex $ 1 livstat $ 1 gftfail $ 1 don_type $ 1 ;
     input @1 id @7 txm @10 txd @13 txy @18 t 4. @22 livstat $ @23 gftfail $ @25 don_type $ @26 prev_ki $ @28 prev_num @32 rec_race 3. @35 rec_sex $
         @ 37 rec_age @41 don_race 3. @44 don_sex $ @46 don_age;
@@ -45,8 +45,9 @@ run;
 Identify any dupe patients - code adapted from SAS Programmer's Manual,
 at <http://support.sas.com/documentation/cdl/en/graphref/65004/HTML/default/viewer.htm#p1rjtjjrqaryykn184fn2dute3un.htm>
 
-once the nicer, HTML, histogram is displayed, it can be shown that there are 4597 patients listed once, 41 patients
-listed twice, and one patient listed three times.  
+I'll comment out the visualizations, since they were more for my own reference.
+Once the nicer, HTML, histogram is displayed, it can be shown that there are
+4597 patients listed once, 41 patients listed twice, and one patient listed three times.
 --------------------------------------------------------*/
 proc sort data = raw;
     by id;
@@ -60,23 +61,27 @@ axis1 order = (1-10) label = none;
 
 /*--------------------------------------------------------
 since there are duplicate patient entries, let's dedupe the data
-set and validate the effort with another bar chart
+set and validate the effort with another bar chart - I'll comment
+out the visualizations, since they were more for my own reference.
 --------------------------------------------------------*/
-proc gchart data = freqs;
-    title "Frequency of Pt. ID in Dataset";
-    block count /gaxis = axis1;
-run;
+/*proc gchart data = freqs;*/
+/*    title "Frequency of Pt. ID in Dataset";*/
+/*    block count /gaxis = axis1;*/
+/*run;*/
 
 proc sort data = raw out = dedupe nodupkey;
     by id;
 run;
+
 proc freq data = dedupe noprint;
     tables id /out = freqs;
 run;
-proc gchart data = freqs;
-    title "Frequency of Pt. ID in Dataset - Deduped";
-    block count /gaxis = axis1;
-run;
+
+/*commented out visualization for production - see note above*/
+/*proc gchart data = freqs;*/
+/*    title "Frequency of Pt. ID in Dataset - Deduped";*/
+/*    block count /gaxis = axis1;*/
+/*run;*/
 
 /*--------------------------------------------------------
 set up format to classify all 'undetermined' 'unknown' or

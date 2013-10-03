@@ -1,11 +1,12 @@
 /*--------------------------------------------------------
 Christian Stafford
 Assignment #2, Question 2
-Completed: 
-Description: 
+Completed: 10/2/2013
+Description: Reshape prostate screening data, then analyze
+it to find information about relapses within the group.
 --------------------------------------------------------*/
 
-libname bios524 "c:\bios524\data";
+libname bios524 "c:\bios524";
 
 /*--------------------------------------------------------
 Re-shape visit data and PSA readings for each pt from wide
@@ -32,7 +33,10 @@ reshape the data from wide to long. I know I'm going to need
 an accumulator for PSA levels, so I'm tacking it on here.
 
 Since we're going through this data here anyway, might as
-well classify it WRT relapse status and days.
+well classify it WRT relapse status and days. 
+
+I added pt 201 to my data set, who should have total PSA of 0.9, as a way to check
+my work; it looks like all patients relapsed in the un-altered data set.
 --------------------------------------------------------*/
 data reshape;
     set pre_reshape;
@@ -60,5 +64,52 @@ data reshape;
 run;
 
 /*--------------------------------------------------------
+categorize patients based on relapse or not.  need to
+sort with a first-pass de-dupe on both id and status,
+then do a second-pass de-dupe just on id.
 
+this is a bit of a hack way to do this, but it seems to
+work ok.
 --------------------------------------------------------*/
+proc sort data = reshape out = sorted nodupkey;
+    by  patid descending status;
+run;
+
+proc sort data = sorted out = deduped nodupkey;
+    by patid;
+run;
+
+/*--------------------------------------------------------
+Now that everything should be nicely de-duped, categorize pts
+by relapse status
+--------------------------------------------------------*/
+data relapsed non_relapsed;
+    set deduped;
+    if status then output relapsed;
+    else output non_relapsed;
+    keep patid rel_days;
+run;
+
+/*--------------------------------------------------------
+quick visualization to check my findings, i'll leave it commented out
+--------------------------------------------------------*/
+/*proc gchart data = deduped;*/
+/*    title "Deduped Pt. Cumulative PSA";*/
+/*    block cumul_psa;*/
+/*run;*/
+
+/*--------------------------------------------------------
+print the requested summary statistics
+
+non_relapsed is empty, so it will only display the "No Observations in..."
+message in the log.
+--------------------------------------------------------*/
+proc means data = relapsed n mean std median q1 q3;
+    title "Relapsed Patients";
+    var rel_days;
+run;
+
+proc means data = non_relapsed n mean std median q1 q3;
+    title "Non-Relapsed Patients";
+    var rel_days;
+run;
