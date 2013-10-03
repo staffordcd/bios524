@@ -82,3 +82,58 @@ proc freq data = four_month_concat;
     tables trt * q1;
     format q1 $yn. trt $type.;
 run;
+
+/*--------------------------------------------------------
+bring in two week data as temp data set, rename conflicting varable weight
+--------------------------------------------------------*/
+data two_wk;
+    set bios524.twowkcs(rename=(weight=base_weight));
+run;
+
+/*--------------------------------------------------------
+merge the 2-wk and 4-wk data.
+
+must sort first.
+
+only want to retain data that exists in both data sets, so use
+the in= options in merge line
+
+change heights and base weight to numeric
+--------------------------------------------------------*/
+proc sort data = four_month_concat;
+    by patid;
+run;
+
+proc sort data = two_wk;
+    by patid;
+run;
+
+data merged;
+    merge two_wk(in=two) four_month_concat(rename=(wt=final_weight) in=four);
+    by patid;
+    if two and four;
+    label final_weight = "Final Weight (lb)";
+    label base_weight = "Base Weight (lb)";
+    base_weight = input(base_weight, best.);
+    heightfeet = input(heightfeet, best.);
+    heightinches = input(heightinches, best.);
+    /*--------------------------------------------------------
+    if both inches and feet are missing, set heights to 0; if
+    feet are missing but inches are present, set feet to 0 but keep inches
+    --------------------------------------------------------*/
+    if heightinches = . then heightinches = 0;
+    if heightfeet = . and heightinches ^= . then heightfeet = 0;
+run;
+
+/*--------------------------------------------------------
+calculate base, final, and change in bmi
+
+bmi = (weight / height in inches ^ 2) * 703
+--------------------------------------------------------*/
+data merged;
+    set merged;
+    htinch = 12 * heightfeet + heightinches;
+    base_bmi = base_weight / htinch ** 2 * 703;
+    end_bmi = final_weight / htinch ** 2 * 703;
+    delta_bmi = end_bmi - base_bmi;
+run;
