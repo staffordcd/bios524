@@ -18,10 +18,17 @@ data raw;
 run;
 
 /**************************************
+peek at the raw data - removed for production
+**************************************/
+/*proc contents data = raw;*/
+/*run;*/
+
+/**************************************
 Enumerate the different products available; don't really care about the statistics per se.
 (for part a)
 **************************************/
 proc freq data = raw(keep = product);
+    ods noproctitle; * turn off that odious "The X Procedure" nonsense;
     title "The Products as Reported";
     title2 "(Answer 1a)";
     tables product /nocum nopercent;
@@ -54,10 +61,10 @@ proc sort data = summed;
     by descending total;
 run;
 
-proc print data = summed label;
+proc print data = summed(obs = 1) noobs label;
     label total = "Total Sales";
     format total dollar12.2;
-    title "Products by Overall Sales";
+    title "Overall Top-Selling Product";
     title2 "(Answer 1b)";
 run;
 
@@ -145,17 +152,77 @@ run;
 /**************************************
 Print results
 **************************************/
-proc print data = summed label;
-    title "Highest Sales in Education Division - 1994";
+proc print data = summed(obs = 1) noobs label;
+    title "Top-Selling Product in Education Division - 1994";
     title2 "(Answer 1d)";
     format total dollar12.2;
     label total = "Total Sales";
 run;
 
 /**************************************
+Identify which products sold better than expected in the US, by division
+
+Subset out all US data, then sort by division and product for starters
+**************************************/
+data us_sales;
+    set raw;
+    if lowcase(country) eq "u.s.a." then output;
+    format actual predict dollar12.2;
+run;
+
+proc sort data = us_sales;
+    by division product;
+run;
+
+/**************************************
+Find overall difference between predicted and actual sales by product within division
+**************************************/
+data diff;
+    set us_sales;
+    by division product;
+    if first.product then do
+        tot_act = 0;
+        tot_pred = 0;
+        tot_prod_diff = 0;
+    end;
+    tot_pred + predict;
+    tot_act + actual;
+    tot_prod_diff + (actual - predict);
+    if last.product then output;
+
+    format tot_act tot_pred tot_prod_diff dollar12.2;
+    label tot_act = "Actual Sales";
+    label tot_pred = "Predicted Sales";
+    label tot_prod_diff = "Difference (act-pred)";
+run;
+
+/**************************************
+Segregate sales data based on positive or negative total sales
+**************************************/
+data good_sales poor_sales;
+    set diff;
+    if tot_prod_diff > 0 then output good_sales;
+    else output poor_sales;
+    keep division product tot_pred tot_act tot_prod_diff;
+run;
+
+/**************************************
+report data
+**************************************/
+proc print data = good_sales label;
+    by division;
+    title "Product Sales Outperforming Predictions, by Division";
+    title2 "(Answer 1e)";
+run;
+
+/**************************************
+
+**************************************/
+
+/**************************************
 a. the products are Bed, Chair, Desk, Sofa, Table 
 b. the product with the highest overall sales during the reporting period was desk.
 c. Canada: Desk; Germany: Sofa; USA: Chair
 d. Chair is the best-selling item from Education division in 1994.
-
+e. Bed, Chair, Table beat the predicted sales in Consumer; Chair, Desk, Sofa beat predictions in Education.
 **************************************/
