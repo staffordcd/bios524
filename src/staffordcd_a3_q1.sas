@@ -69,6 +69,12 @@ proc print data = summed(obs = 1) noobs label;
 run;
 
 /**************************************
+I'm creating a lot of intermediate data sets, so delete the temp. data set for housekeeping purposes
+**************************************/
+proc delete data = summed;
+run;
+
+/**************************************
 Find the product with the highest sales per country.
 
 Sort by country, then use unsorted by-grouping with product.
@@ -118,6 +124,12 @@ proc print data = highest label;
 run;
 
 /**************************************
+I'm creating a lot of intermediate data sets, so delete the temp. data set for housekeeping purposes
+**************************************/
+proc delete data = summed highest;
+run;
+
+/**************************************
 Find product with highest sales in Education division in 1994
 
 Subset out the data to make it easier to work with
@@ -157,6 +169,12 @@ proc print data = summed(obs = 1) noobs label;
     title2 "(Answer 1d)";
     format total dollar12.2;
     label total = "Total Sales";
+run;
+
+/**************************************
+I'm creating a lot of intermediate data sets, so delete the temp. data set for housekeeping purposes
+**************************************/
+proc delete data = summed edu_1994;
 run;
 
 /**************************************
@@ -216,13 +234,40 @@ proc print data = good_sales label;
 run;
 
 /**************************************
-
+I'm creating a lot of intermediate data sets, so delete the temp. data set for housekeeping purposes
 **************************************/
+proc delete data = good_sales poor_sales diff us_sales;
+run;
 
+/**************************************
+Question 1, Part F
+
+Show sales data for German, consumer-division, office, Q1, 1993
+
+Subset out the desired data
+**************************************/
+data deu_sales;
+    set raw;
+    if lowcase(country) eq "germany" and lowcase(division) eq "consumer"
+        and lowcase(prodtype) eq "office" and quarter = 1 and year = 1993 then
+            output;
+run;
+
+/**************************************
+display the data
+**************************************/
+proc print data = deu_sales;
+    title "Sales Data for Germany";
+    title2 "Consumer Division, Office";
+    title3 "Q1, 1993";
+    title4 "(Answer 1f)";
+run;
+    
 /**************************************
 a. the products are Bed, Chair, Desk, Sofa, Table 
 b. the product with the highest overall sales during the reporting period was desk.
 c. Canada: Desk; Germany: Sofa; USA: Chair
 d. Chair is the best-selling item from Education division in 1994.
 e. Bed, Chair, Table beat the predicted sales in Consumer; Chair, Desk, Sofa beat predictions in Education.
+f. see above code.
 **************************************/
