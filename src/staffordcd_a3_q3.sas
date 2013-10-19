@@ -1,7 +1,10 @@
 /*******************************
 Name: Christian Stafford
-Assignment #3 Q1
+Assignment #3 Q3
 Completed: 
-Description: Categorize and describe various statistics about product sales
+Description: 
+
+NOTE: unless otherwise specified, code has been heavily inspired by snippets available from the
+    SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
 *******************************/
 
