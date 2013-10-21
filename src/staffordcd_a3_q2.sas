@@ -34,7 +34,7 @@ Create the new clinics, format accordingly
 **************************************/
 data new_clinics;
     length contact $ 25 clinicid $ 3;
-    format clinicid$ $clinid. phone phonum. DOEntry date9.;
+    format clinicid$ $clinid. phone phonum. DOEntry;
     informat doentry mmddyy8.;
     input clinicid $ contact $ phone NumPhys DOEntry;
 
@@ -106,11 +106,28 @@ data pt_merged;
     pt_guid = cat(clinicid, famid, patcode);
 run;
 
+proc sort data = pt_merged;
+    by pt_guid;
+run;
 
-/*/***************************************/
-/*create sampling frame for later postal survey*/
-/***************************************/*/
-/*data survey_frame;*/
-/*    set pt_raw clinic_raw;*/
-/*    merge */
-/*run;*/
+/**************************************
+Label index visits - is this the pt's index visit?
+0 == no, 1 == yes
+**************************************/
+data pt_merged;
+    set pt_merged;
+    by pt_guid;
+    idx_visit = 0;
+    if not first.pt_guid and dov >= doentry then idx_visit = 1;
+run;
+
+
+/**************************************
+Having established which is the idx visit, apply
+the other eligibility rules, keeping only patient ID and clinic code
+per the instructions.
+**************************************/
+data eligible_pts(keep = pt_guid clinicid);
+    set pt_merged;
+    if idx_visit and age >= 18 and (upcase(rfv) eq "S" or upcase(rfv) eq "H") then output;
+run;
