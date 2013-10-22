@@ -107,20 +107,29 @@ data pt_merged;
 run;
 
 proc sort data = pt_merged;
-    by pt_guid;
+    by pt_guid dov;
 run;
 
 /**************************************
-Label index visits - is this the pt's index visit?
+Label index visits - is this a potential index visit?
 0 == no, 1 == yes
+
+First pass leaves dupes, but 2nd pass rectifies them.
 **************************************/
 data pt_merged;
     set pt_merged;
     by pt_guid;
     idx_visit = 0;
-    if not first.pt_guid and dov >= doentry then idx_visit = 1;
+    if dov >= doentry and not first.pt_guid then
+        idx_visit = 1;
 run;
 
+data index_visits;
+    set pt_merged;
+    by pt_guid idx_visit;
+    if idx_visit and first.idx_visit then
+        output;
+run;
 
 /**************************************
 Having established which is the idx visit, apply
@@ -128,6 +137,40 @@ the other eligibility rules, keeping only patient ID and clinic code
 per the instructions.
 **************************************/
 data eligible_pts(keep = pt_guid clinicid);
-    set pt_merged;
-    if idx_visit and age >= 18 and (upcase(rfv) eq "S" or upcase(rfv) eq "H") then output;
+    set index_visits;
+    if age >= 18 and (upcase(rfv) eq "S" or upcase(rfv) eq "H") then output;
+run;
+
+/**************************************
+sort the eligible patients by clinic id and pt id
+**************************************/
+proc sort data = eligible_pts;
+    by clinicid pt_guid;
+run;
+
+/**************************************
+this was for me, I'll leave it commented out
+**************************************/
+/*proc print data = eligible_pts;*/
+/*run;*/
+/**/
+/*proc freq data = eligible_pts;*/
+/*run;*/
+
+proc format;
+    value $rfv_code "S" = "Sick Visit"
+                    "H" = "Health Mgmt Exam"
+                    "F" = "Follow-up"
+                    "N" = "Nurse visit";
+run;
+/**************************************
+% distribution of visit reasons across all clinics
+**************************************/
+proc freq data = pt_raw;
+    ods noproctitle; * turn off that odious "The X Procedure" nonsense;
+    tables rfv;
+    format rfv $rfv_code.;
+    label RFV = "Reason for Visit";
+    title "Distribution of Visit Codes";
+    title2 "Across All Clinics";
 run;
