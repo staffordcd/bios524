@@ -163,8 +163,9 @@ proc format;
                     "F" = "Follow-up"
                     "N" = "Nurse visit";
 run;
+
 /**************************************
-% distribution of visit reasons across all clinics
+distribution of visit reasons across all clinics
 **************************************/
 proc freq data = pt_raw;
     ods noproctitle; * turn off that odious "The X Procedure" nonsense;
@@ -173,4 +174,89 @@ proc freq data = pt_raw;
     label RFV = "Reason for Visit";
     title "Distribution of Visit Codes";
     title2 "Across All Clinics";
+    title3 "(question 4)";
 run;
+
+/**************************************
+calculate the number of visits to each clinic over the range of dates in data set
+
+since the 2 new clinics don't have any data associated with them, make sure they show
+up as 0 visits.
+**************************************/
+data visits(keep = visits clinicid);
+    set pt_merged;
+    by clinicid;
+    if first.clinicid then visits = 0;
+    /* this will keep any zero-visit clinics from collecting a visit*/
+    if dov then visits + 1;
+    if last.clinicid then output;
+run;
+
+proc print data = visits label;
+    title "Total Number of Visits to Clincs";
+    title2 "(question 5)";
+    label clinicid = "Clinic";
+    label visits = "Total Visits";
+run;
+
+/**************************************
+calculate the average number of visits per patient for each clinic
+**************************************/
+proc sort data = pt_merged;
+    by pt_guid;
+run;
+
+data avg_pt_visit;
+    set pt_merged;
+    by pt_guid;
+    if first.pt_guid then pt_visits = 0;
+    * again, make sure we don't increment zero-patient clinics;
+    if patcode not in("", ".") then pt_visits + 1;
+    if last.pt_guid then output;
+    keep clinicid pt_guid PatCode FamID pt_visits;
+run;
+
+proc means data = avg_pt_visit mean;
+    by clinicid;
+    var pt_visits;
+    label pt_visits = "Number of Visits";
+    title "Average Number of Visits Per Patient";
+    title2 "by Clinic";
+    title3 "(question 6)";
+run;
+
+/**************************************
+find mean and sd of age of pts by clinic, and % distribution of gender
+
+want to de-dupe to count each pt only once, and use Jan 1, 2001 as the ref date
+for age calculation
+**************************************/
+data dedupe;
+    set pt_merged;
+    by pt_guid;
+    format ref_date mmddyy8.;
+    ref_date = "01JAN2000"d;
+    age_at_ref = INT(INTCK('MONTH', dob, ref_date)/12); 
+    IF MONTH(dob) = MONTH(ref_date) THEN age_at_ref = age_at_ref - (DAY(dob) > DAY(ref_date));
+    keep gender pt_guid clinicid ref_date age_at_ref;
+run;
+
+proc sort data = dedupe nodupkey;
+    by pt_guid;
+run;
+
+proc means data = dedupe mean std n;
+    by clinicid;
+    var age_at_ref;
+    title "Mean and Standard Deviation of Age, by Clinic";
+    title2 "Using Reference Date Jan 1, 2001";
+    title3 "(question 7, first part)";
+run;
+
+proc freq data = dedupe;
+    tables Gender /nocol nocum;
+    by clinicid;
+    title "Gender Distribution by Clinic";
+    title2 "(question 7, second part)";
+run;
+
