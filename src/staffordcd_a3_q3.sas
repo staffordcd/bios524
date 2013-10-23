@@ -8,7 +8,7 @@ NOTE: unless otherwise specified, code has been heavily inspired by snippets ava
     SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
 *******************************/
 
-libname bios524 "c:/bios524/data/";
+libname bios524 "c:/bios524";
 
 /**************************************
 read in raw data
@@ -73,7 +73,7 @@ data pt_base;
 run;
 
 /**************************************
-start building up a way to calculate change in BMI and weight from visit to visit
+start building up a way to calculate current change in BMI and weight using base as a reference point
 **************************************/
 data merged;
     merge pt_base(in = pb) vitals_raw(in = vr);
@@ -81,3 +81,39 @@ data merged;
     if pb and vr then output;
 run;
 
+data diffs;
+    set merged;
+    delta_wt = weightkg - base_weight;
+    delta_bmi = (weightkg / (height_m ** 2)) - base_bmi;
+run;
+
+/**************************************
+summarize the diffs by mean and std dev for each week
+**************************************/
+proc sort data = visit_raw;
+    by pat_id;
+run;
+
+proc sort data = diffs;
+    by pat_id;
+run;
+
+data merged;
+    merge diffs(in = d) visit_raw(in = vr);
+    by pat_id;
+    if d and vr then output;
+run;
+
+proc sort data = merged;
+    by visweek;
+run;
+
+proc means data = merged n mean std;
+    by visweek;
+    label visweek = "Visit Week";
+    var delta_bmi delta_wt;
+    title "Changes in BMI and Weight";
+    title2 "Mean and Standard Deviation";
+    title3 "by Week";
+    title4 "(question 3 part c)";
+run;

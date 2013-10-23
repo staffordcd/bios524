@@ -9,7 +9,7 @@ NOTE: unless otherwise specified, code has been heavily inspired by snippets ava
     SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
 *******************************/
 
-libname bios524 'c:/bios524/data/';
+libname bios524 'c:/bios524/';
 
 /**************************************
 needed to make this library assignment last time we used the ClinID format

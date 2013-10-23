@@ -8,7 +8,7 @@ NOTE: unless otherwise specified, code has been heavily inspired by snippets ava
     SAS Programmer's Bookshelf, <http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html>
 *******************************/
 
-libname bios 'c:/bios524/data/';
+libname bios 'c:/bios524/';
 
 /**************************************
 Read in the raw sales data
