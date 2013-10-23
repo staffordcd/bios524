@@ -76,12 +76,15 @@ pt age >= 18 at the time of the index visit
 will take a few passes to whittle the data down in a stepwise fashion... my brain won't let me do this all at once.
 
 derived age calculation from information at http://support.sas.com/publishing/authors/extras/61860_update.pdf
+
+assign a globally-unique id to each pt
 **************************************/
 data pt_age;
     set pt_raw;
 
     age = INT(INTCK('MONTH', dob, dov)/12); 
     IF MONTH(dob) = MONTH(dov) THEN age = age - (DAY(dob) > DAY(dov));
+    pt_guid = cat(clinicid, famid, patcode);
 run;
 
 /**************************************
@@ -97,13 +100,11 @@ run;
 
 /**************************************
 Create a new dataset that contains all the clinic and pt demographic data
-
-Add pt's globally unique ID to data set
 **************************************/
 data pt_merged;
     merge pt_age clinic_raw;
     by clinicid;
-    pt_guid = cat(clinicid, famid, patcode);
+    
 run;
 
 proc sort data = pt_merged;
@@ -183,6 +184,10 @@ calculate the number of visits to each clinic over the range of dates in data se
 since the 2 new clinics don't have any data associated with them, make sure they show
 up as 0 visits.
 **************************************/
+proc sort data = pt_merged;
+    by clinicid;
+run;
+
 data visits(keep = visits clinicid);
     set pt_merged;
     by clinicid;
@@ -215,6 +220,9 @@ data avg_pt_visit;
     if last.pt_guid then output;
     keep clinicid pt_guid PatCode FamID pt_visits;
 run;
+proc sort data = avg_pt_visit;
+    by clinicid;
+run;
 
 proc means data = avg_pt_visit mean;
     by clinicid;
@@ -238,14 +246,18 @@ data dedupe;
     ref_date = "01JAN2000"d;
     age_at_ref = INT(INTCK('MONTH', dob, ref_date)/12); 
     IF MONTH(dob) = MONTH(ref_date) THEN age_at_ref = age_at_ref - (DAY(dob) > DAY(ref_date));
-    keep gender pt_guid clinicid ref_date age_at_ref;
+    keep gender pt_guid age clinicid ref_date age_at_ref;
 run;
 
 proc sort data = dedupe nodupkey;
     by pt_guid;
 run;
 
-proc means data = dedupe mean std n;
+proc sort data = dedupe;
+    by clinicid;
+run;
+
+proc means data = dedupe mean std;
     by clinicid;
     var age_at_ref;
     title "Mean and Standard Deviation of Age, by Clinic";
@@ -254,9 +266,48 @@ proc means data = dedupe mean std n;
 run;
 
 proc freq data = dedupe;
-    tables Gender /nocol nocum;
     by clinicid;
+    tables Gender /nocol nocum;
     title "Gender Distribution by Clinic";
     title2 "(question 7, second part)";
 run;
 
+/**************************************
+count of all eligible pts, by clinic
+**************************************/
+proc means data = eligible_pts;
+    by clinicid;
+    title "Number of Eligible Patients, by Clinic";
+    title2 "(question 8)";
+run;
+
+/**************************************
+age and gender distribution of eligible pts across all clinics
+
+use age at index visit
+**************************************/
+data eligible_ages;
+    merge eligible_pts(in = ep) index_visits(in = iv);
+    by pt_guid;
+    if ep and iv then output;
+    keep clinicid pt_guid age gender;
+run;
+proc sort data = eligible_ages;
+    by age;
+run;
+
+proc freq data = eligible_ages;
+/* wasn't sure if you wanted age * gender, or age and gender, so here are each!    */
+    title "Distribution of Age and Gender of Eligible Patients, all clinics";
+    title2 "(question 9)";
+    tables age * Gender;
+run;
+
+proc freq data = eligible_ages;
+    title "Distribution of Age of Eligible Patients, all clinics";
+    tables age;
+run;
+proc freq data = eligible_ages;
+    title "Distribution of Gender of Eligible Patients, all clinics";
+    tables Gender;
+run;
