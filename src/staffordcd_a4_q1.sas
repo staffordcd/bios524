@@ -21,18 +21,13 @@ run;
 
 /**************************************
 assign a unique ID to each subject, should be able to just use _N_ since
-the idx value itself is arbitrary
+the idx value itself is arbitrary and need only be unique
 
 separate based on birth order
 **************************************/
-data bios.order1 bios.order2 brainsize;
+data brainsize bios.order1 bios.order2;
     set brainsize;
     subcode = _N_;
-    select;
-        when(order = 1)
-            output bios.order1;
-        when(order = 2)
-            output bios.order2;
-    end;
-
+    if order = 1 then output bios.order1;
+    else if order = 2 then output bios.order2;
 run;
