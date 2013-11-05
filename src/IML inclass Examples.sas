@@ -69,7 +69,7 @@ proc iml;                           * Invoke IML;
     T1=0:7; T2=(0:3)||(0:3);
         TandT=T1 & T2;              * AND operator. Both elements must be 1 to be true (=1);
         TorT =T1 | T2;              * OR operator.  At least one element is 1 to be true;
-        Not_T1=^T2;                 * 0's converted to 1's, nonzeros converted to 0;
+        Not_T1=^T1;                 * 0's converted to 1's, nonzeros converted to 0;
 
    *** Subscripts ***;
     Print M;
@@ -80,6 +80,7 @@ proc iml;                           * Invoke IML;
     Part4[2,2]=2;                   * Assign values to submatrix;
 
     Mnoneg=M;
+    print M Mnoneg;
     Mloc=loc(M<0);                  * LOC: returns cell locations where comparison is true;
     Mnoneg[loc(M<0)]=0;             * Assign 0 to all negative values in M (or Mnonneg);
     Mloc=loc(Mnoneg=0);             * LOC: returns cell locations where comparison is true;
