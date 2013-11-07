@@ -47,11 +47,12 @@ use the auto-numer facility baked in to the macro variables to go over order1, o
 **************************************/
     %if &type = N %then %do i = 1 %to &num_sets;
         proc means data = &base_name&i mean std alpha = 0.05 clm;
+        by order;
         var
         %if %bquote(&varlist) = all %then _numeric_;
         %else &varlist;
         ;
-        title "Stuff!";
+        title "Stuff! Run &i";
     %end;
 %mend sum_stats;
 
