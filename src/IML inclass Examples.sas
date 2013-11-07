@@ -115,9 +115,9 @@ proc iml;                           * Invoke IML;
     SSofM      =M[##];              * Sum of squares over all values of matrix;
 
    *** Open a SAS Data Set for Reading ***;
-    reset nolog noprint deflib=classlib;                            * Default library: Classlib;
+    reset nolog noprint;
 
-    Use Hlthsrvy  Nobs NN;                                          * Open the data set;
+    Use classlib.Hlthsrvy  Nobs NN;                                          * Open the data set;
     Read All var {PF RP BP GH VT SF RE MH} Into SF36;               * Read the data;
 
     reset print;
