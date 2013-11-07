@@ -41,12 +41,12 @@ Macro to calculate some summary statistics on a specified dataset(s)
 
 I (shamelessly) ripped a lot of this out of the example script we were given in class, Macro Examples 2012.sas.
 **************************************/
-%macro sum_stats(data_set = &syslast, type = N, varlist = all, whereby = );
+%macro sum_stats(type = N, varlist = all, whereby = );
 /**************************************
 use the auto-numer facility baked in to the macro variables to go over order1, order2
 **************************************/
-    %if &type = N %then %do;
-        proc means data = %bquote(&cool_sets) mean std alpha = 0.05 clm;
+    %if &type = N %then %do i = 1 %to &num_sets;
+        proc means data = &base_name&i mean std alpha = 0.05 clm;
         var
         %if %bquote(&varlist) = all %then _numeric_;
         %else &varlist;
@@ -59,6 +59,7 @@ use the auto-numer facility baked in to the macro variables to go over order1, o
 set a macro var specifying the data we're interested in, using like
 a const
 **************************************/
-%let cool_sets = bios.order1 bios.order2;
 %let cool_data = ccmidsa fiq hc totsa totvol weight;
-%sum_stats(data_set = (&cool_sets), type = N, varlist = &cool_data);
+%let base_name = bios.order;
+%let num_sets = 2;
+%sum_stats(varlist = &cool_data);
