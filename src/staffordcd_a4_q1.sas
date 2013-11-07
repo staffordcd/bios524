@@ -24,10 +24,41 @@ assign a unique ID to each subject, should be able to just use _N_ since
 the idx value itself is arbitrary and need only be unique
 
 separate based on birth order
+
+I don't know why, but for some reason the OUTPUT cmd is removing the
+data from brainsize?  I've adjusted the output cmds below to make sure
+brainsize isn't emptied out.
 **************************************/
-data brainsize bios.order1 bios.order2;
+data bios.order1 bios.order2 brainsize;
     set brainsize;
     subcode = _N_;
-    if order = 1 then output bios.order1;
-    else if order = 2 then output bios.order2;
+    if order = 1 then output bios.order1 brainsize; * output to brainsize as well, otherwise it "loses" the record;
+    else if order = 2 then output bios.order2 brainsize;    * ditto;
 run;
+
+/**************************************
+Macro to calculate some summary statistics on a specified dataset(s)
+
+I (shamelessly) ripped a lot of this out of the example script we were given in class, Macro Examples 2012.sas.
+**************************************/
+%macro sum_stats(data_set = &syslast, type = N, varlist = all, whereby = );
+/**************************************
+use the auto-numer facility baked in to the macro variables to go over order1, order2
+**************************************/
+    %if &type = N %then %do;
+        proc means data = %bquote(&cool_sets) mean std alpha = 0.05 clm;
+        var
+        %if %bquote(&varlist) = all %then _numeric_;
+        %else &varlist;
+        ;
+        title "Stuff!";
+    %end;
+%mend sum_stats;
+
+/**************************************
+set a macro var specifying the data we're interested in, using like
+a const
+**************************************/
+%let cool_sets = bios.order1 bios.order2;
+%let cool_data = ccmidsa fiq hc totsa totvol weight;
+%sum_stats(data_set = (&cool_sets), type = N, varlist = &cool_data);
