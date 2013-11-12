@@ -65,7 +65,7 @@ I (shamelessly) ripped a lot of this out of the example script we were given in 
 
 /**************************************
 Now export to a XLS[X] file.  I can't get the XLS output to work, on my system it just
-writes a bunch of crap to the disk; the XLSX output, oddly, works great here.
+writes a bunch of crap to the disk; the XLSX output, oddly, works great.
 **************************************/
 proc export data = brainsummary dbms = xlsx outfile = 'c:/bios524/brainsummary';
 run;
