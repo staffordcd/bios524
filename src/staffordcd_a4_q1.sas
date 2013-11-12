@@ -5,7 +5,7 @@ Completed:
 Description: 
 *******************************/
 
-libname bios "c:/bios524/data/";
+libname bios "c:/bios524/";
 
 /**************************************
 import the excel file
@@ -15,8 +15,8 @@ and x86 MS Office; I can't guarantee this will work on any system other than
 my own!
 **************************************/
 proc import out=brainsize DBMS = xls replace
-    datafile="c:/bios524/data/iq_brain.xls";
-/*    datafile="c:/bios524/iq_brain.xls";*/
+    /*datafile="c:/bios524/data/iq_brain.xls";*/
+    datafile="c:/bios524/iq_brain.xls";
 run;
 
 /**************************************
