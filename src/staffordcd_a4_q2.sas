@@ -1,4 +1,4 @@
-libname bios 'c:/bios524/data/';
+libname bios 'c:/bios524/';
 
 /**************************************
 add the specified data.  I added temporary char variables, rawcity and rawphone, that I
