@@ -60,11 +60,14 @@ proc iml;
         1};
     
     title "Problem 2";
-    print A;
-    print B;
-    print y;
-
+    * concatenate the A and B matrices to form a square matrix, and use the solve function;
+    AB = A || B;
+    ans = solve(AB, y);
     
-
+    * split the ans vector back into its components x_1 and x_2;
+    x_1 = ans[1:4];
+    x_2 = ans[5:6];
+    print x_1;
+    print x_2;
     quit;
 run;
