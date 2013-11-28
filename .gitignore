@@ -2,3 +2,5 @@
 *.html
 *.xls
 *.pdf
+.Rproj.user
+*.xlsx
