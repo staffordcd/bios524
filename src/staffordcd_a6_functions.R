@@ -36,3 +36,21 @@ mixture <- function(m1, sd1, m2, sd2, p)
         return(rnorm(mean = m2, sd = sd2, n = 1))
     }
 }
+
+# generate the data as specified
+y1 <- replicate(n=1000, expr=mixture(-2,2,3,1.5,0.5))
+y2 <- replicate(n=1000, expr=mixture(-2,2,3,1.5,0.2))
+
+# set up the plot surface for side-by-side display
+layout(matrix(nrow=1, ncol=2, data=1:2))
+layout.show(2)
+
+# plot y1 and friends
+hist(y1, main="Mixture Normal Distribution of Y1", prob=TRUE)
+lines(density(y1), col="blue")
+legend("topleft", legend=c("Fitted density"), col=c("blue"), lty="solid")
+
+# plot y2 and friends
+hist(y2, main="Mixture Normal Distribution of Y2", prob=TRUE)
+lines(density(y2), col="blue")
+legend("topleft", legend="Fitted Density", col="blue", lty="solid")
